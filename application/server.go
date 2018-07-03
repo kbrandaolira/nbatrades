@@ -11,6 +11,7 @@ func main() {
 	http.Handle("/", fs)
 
 	http.HandleFunc("/teams/", TeamsHandler)
+	http.HandleFunc("/transfers/", TransfersHandler)
 
 	log.Println("Initializing Server...")
 	log.Fatal(http.ListenAndServe(":3000", nil))
