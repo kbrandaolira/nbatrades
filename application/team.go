@@ -1,11 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Team struct {
@@ -35,13 +38,13 @@ func TeamsHandler(w http.ResponseWriter, r *http.Request) {
 
 func Get(w http.ResponseWriter, r *http.Request, id int) {
 
-	db := Init()
+	db, _ := sql.Open("mysql", "root:dds3@1@/nbatrades")
+
+	defer db.Close()
 
 	var t Team
 
-	db.QueryRow("select id,name from teams where id = ? order by name", id).Scan(&t.Id, &t.Name)
-
-	fmt.Println(t)
+	db.QueryRow("select id,name,shortname,country,conference,division from teams where id = ? order by name", id).Scan(&t.Id, &t.Name, &t.Shortname, &t.Country, &t.Conference, &t.Division)
 
 	json, _ := json.Marshal(t)
 
@@ -53,7 +56,9 @@ func Get(w http.ResponseWriter, r *http.Request, id int) {
 
 func All(w http.ResponseWriter, r *http.Request) {
 
-	db := Init()
+	db, _ := sql.Open("mysql", "root:dds3@1@/nbatrades")
+
+	defer db.Close()
 
 	rows, _ := db.Query("select id,name,shortname,country,conference,division from teams order by name")
 
@@ -62,10 +67,12 @@ func All(w http.ResponseWriter, r *http.Request) {
 	var teams []Team
 
 	for rows.Next() {
+
 		var t Team
 		rows.Scan(&t.Id, &t.Name, &t.Shortname, &t.Country, &t.Conference, &t.Division)
 
 		teams = append(teams, t)
+
 	}
 
 	json, _ := json.Marshal(teams)
