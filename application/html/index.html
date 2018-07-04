@@ -5,10 +5,172 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>NBA Trades 2018/2019</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <style>
+        body{
+            background-color: #f5f5f0;
+        }
+
+        .footer {
+            padding: 2.5rem 0;
+            color: #999;
+            text-align: center;
+            background-color: #f9f9f9;
+            border-top: .05rem solid #e5e5e5;
+        }
+
+        .logo{
+            width:150px;
+            height:125px;
+        }
+    </style>
+
 </head>
 <body>
 
-    Welcome!
+    <nav class="navbar navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">NBA Trades 2018/2019</a>
+    </nav>
+
+    
+
+    <div class="row" style="background-color:white;border-radius:5px;margin:10px;padding:10px;text-align:center;">
+
+        <div class="col-md-4">
+            <h6>Selling to</h6>
+        </div>
+
+        <div class="col-md-4">
+            <h6>Team</h6>
+        </div>
+
+        <div class="col-md-4">
+            <h6>Buying from</h6>
+        </div>
+
+    </div>
+
+    <div id="teams"></div>
+
+    <div class="footer">
+        Desenvolvido por Kayan Brandão Lira em Golang @ 2018 <br>
+        <a href="https://br.linkedin.com/in/kbrandaolira" class="fa fa-linkedin"></a>
+        <a href="https://github.com/kbrandaolira" class="fa fa-github"></a>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+
+            $.ajax({
+                url: "http://localhost:3000/teams/",
+                method: "GET",
+                async: false,
+                success: function(response){
+
+                    $.each(response, function(i,team){
+
+                        var html = "";
+
+                        html +=
+
+                        "<div class='row' style='background-color:white;border-radius:5px;margin:10px;padding:10px;text-align:center;'>" +
+                            
+                            "<div class='col-md-4'>";
+
+                            $.ajax({
+                                url: "http://localhost:3000/transfers/asseller/" + team.id,
+                                method: "GET",
+                                async: false,
+                                success: function(response2){
+                                    
+                                    if( response2 != null ){
+
+                                        $.each(response2, function(j,tout){
+
+                                            html +=
+
+                                                tout.player + " " + tout.status;
+
+                                        });
+
+                                    } else {
+
+                                        html +=
+
+                                            "Nothing"
+
+                                    }
+
+                                }
+                            });
+
+                        html +=
+
+                            "</div>" +
+
+                            "<div class='col-md-4'>" +
+
+                                // teams
+
+                                "<img class='logo' src='http://localhost:3000/teams/logo/"+ team.id +"'/>" + "<br>" + team.name + " ("+ team.shortname +")" +
+
+                            "</div>" +
+
+                            "<div class='col-md-4'>";
+
+                            // buying from
+
+                            $.ajax({
+                                url: "http://localhost:3000/transfers/asbuyer/" + team.id,
+                                method: "GET",
+                                async: false,
+                                success: function(response3){
+                                    
+                                    if( response3 != null ){
+
+                                        $.each(response3, function(j,tin){
+
+                                            html +=
+
+                                                tin.player + " " + tin.status;
+
+                                        });
+
+                                    } else {
+
+                                        html +=
+
+                                            "Nothing"
+
+                                    }
+
+                                }
+                            });
+
+                        html +=
+
+                            "</div>" +
+
+                        "</div>";
+
+                        $("#teams").append(html);
+
+                    });
+                    
+                }
+
+            });
+
+        });
+
+    </script>
     
 </body>
 </html>
